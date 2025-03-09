@@ -1,0 +1,60 @@
+@startuml
+title E-commerce System Architecture
+
+' Set layout to left-to-right for a wide view
+left to right direction
+
+' Global styling settings
+skinparam backgroundColor #EEF2F3
+skinparam packageBackgroundColor #FFFFFF
+skinparam packageBorderColor #CCCCCC
+skinparam packageStyle rectangle
+skinparam component {
+  BackgroundColor #DDEEFF
+  BorderColor #003366
+  FontColor #003366
+  FontSize 12
+}
+skinparam arrow {
+  FontColor #000000
+  Color #006699
+  Thickness 1.5
+}
+
+' Frontend Package
+package "Frontend" {
+    [React Frontend] as FE
+}
+
+' API Services Package (each service handles a specific domain)
+package "API Services" {
+    [Product Catalog API] as PCA
+    [Category API] as CAT
+    [Product Detail API] as PDA
+    [User Authentication API] as UAA
+    [Shopping Cart API] as SCA
+    [Order Management API] as OMA
+}
+
+' Database Service Package
+package "Database Service" {
+    [Database (MySQL / PostgreSQL)] as DB
+}
+
+' REST interactions from the Frontend to each API
+FE --> PCA : REST Calls
+FE --> CAT : REST Calls
+FE --> PDA : REST Calls
+FE --> UAA : REST Calls
+FE --> SCA : REST Calls
+FE --> OMA : REST Calls
+
+' Each API service communicates with the Database for data persistence
+PCA --> DB : SQL Queries
+CAT --> DB : SQL Queries
+PDA --> DB : SQL Queries
+UAA --> DB : SQL Queries
+SCA --> DB : SQL Queries
+OMA --> DB : SQL Queries
+
+@enduml

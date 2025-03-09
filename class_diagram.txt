@@ -1,0 +1,134 @@
+@startuml
+title E-commerce Domain Model
+
+' Global diagram styling
+skinparam backgroundColor #F9F9F9
+skinparam shadowing true
+skinparam classAttributeIconSize 0
+skinparam class {
+    FontName "Arial"
+    FontSize 12
+    BorderColor Black
+}
+
+' Define stereotype-specific styling using skinparam directives
+skinparam classBackgroundColor<<Website>> #A6CEE3
+skinparam classFontColor<<Website>> Black
+
+skinparam classBackgroundColor<<Product>> #FFF2CC
+skinparam classFontColor<<Product>> Black
+
+skinparam classBackgroundColor<<ProductVariant>> #F4CCCC
+skinparam classFontColor<<ProductVariant>> Black
+
+skinparam classBackgroundColor<<Category>> #D9EAD3
+skinparam classFontColor<<Category>> Black
+
+skinparam classBackgroundColor<<User>> #C9DAF8
+skinparam classFontColor<<User>> Black
+
+skinparam classBackgroundColor<<ShoppingCart>> #EAD1DC
+skinparam classFontColor<<ShoppingCart>> Black
+
+skinparam classBackgroundColor<<Order>> #FCE5CD
+skinparam classFontColor<<Order>> Black
+
+' Define Classes with Stereotypes
+
+class Website <<Website>> {
+    - id: Integer
+    - name: String
+    - description: String
+    - meta: Decimal
+    - favicon: String
+    - logo: String
+    - email: String
+    - helpline: String
+}
+
+class Product <<Product>> {
+    - id: Integer
+    - name: String
+    - description: String
+    - basePrice: Decimal
+    - images: List<String>
+    - specifications: String
+    + getDetails(): String
+    + updateStock(newStock: Integer): void
+}
+
+class ProductVariant <<ProductVariant>> {
+    - id: Integer
+    - variantName: String
+    - attributes: Map<String, String>
+    - price: Decimal
+    - color: String
+    - size: String
+    - stock: Integer
+    - images: List<String>
+    + getVariantDetails(): String
+}
+
+class Category <<Category>> {
+    - id: Integer
+    - name: String
+    - use_as_menu: Boolean
+    + getProducts(): List<Product>
+}
+
+class User <<User>> {
+    - id: Integer
+    - username: String
+    - email: String
+    - password: String
+    + login(): Boolean
+    + register(): Boolean
+}
+
+class ShoppingCart <<ShoppingCart>> {
+    - id: Integer
+    - user: User
+    - items: List<ShoppingCartItem>
+    + addItem(variant: ProductVariant, quantity: Integer): void
+    + updateItem(variant: ProductVariant, quantity: Integer): void
+    + removeItem(variant: ProductVariant): void
+    + getTotal(): Decimal
+}
+
+class ShoppingCartItem {
+    - id: Integer
+    - productVariant: ProductVariant
+    - quantity: Integer
+    + getLineTotal(): Decimal
+}
+
+class Order <<Order>> {
+    - id: Integer
+    - user: User
+    - orderDate: DateTime
+    - status: String
+    - shippingInfo: String
+    - totalCost: Decimal
+    + calculateTotal(): Decimal
+}
+
+class OrderItem {
+    - id: Integer
+    - productVariant: ProductVariant
+    - quantity: Integer
+    - price: Decimal
+    + getLineTotal(): Decimal
+}
+
+' Relationships
+Product "1" --> "0..*" ProductVariant : "has variants"
+Product --> Category : "belongs to"
+Category "1" --> "*" Product : "groups"
+User "1" --> "1" ShoppingCart : "owns"
+User "1" --> "*" Order : "places"
+ShoppingCart "1" --> "*" ShoppingCartItem : "contains"
+ShoppingCartItem --> ProductVariant : "references"
+Order "1" --> "*" OrderItem : "includes"
+OrderItem --> ProductVariant : "references"
+
+@enduml
