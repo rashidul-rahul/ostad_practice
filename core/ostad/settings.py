@@ -11,9 +11,15 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from datetime import timedelta
+from environs import Env
+
+env = Env()
+env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -38,8 +44,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    #firstparty
+    # internal
     'core.apps.users.apps.UsersConfig',
+    # 'core.apps.products.apps.ProductsConfig',
+    'core.apps.products.apps.ProductsConfig',
+
+    # third party
+    'rest_framework_simplejwt',
+
 ]
 
 MIDDLEWARE = [
@@ -52,7 +64,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'core.ostad.urls'
+ROOT_URLCONF = 'core.api.urls'
 
 TEMPLATES = [
     {
@@ -78,8 +90,12 @@ WSGI_APPLICATION = 'core.ostad.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env.str("POSTGRES_DB", "mydatabase"),
+        'USER': env.str("POSTGRES_USER", "myuser"),
+        'PASSWORD': env.str("POSTGRES_PASSWORD", "mypassword"),
+        'HOST': env.str("POSTGRES_HOST", "localhost"),
+        'PORT': env.int("POSTGRES_PORT", 5432),
     }
 }
 
@@ -120,7 +136,32 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=35),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+AUTH_USER_MODEL = 'users.User'
+
+
+AUTHENTICATION_BACKENDS = [
+    'core.apps.users.backends.PhoneBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
