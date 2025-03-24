@@ -1,6 +1,13 @@
-from rest_framework import generics
+from rest_framework import generics, filters
 from core.apps.products.models import Category, Product
+from rest_framework.pagination import PageNumberPagination
 from core.apps.products.serializers import CategorySerializer, ProductSerializer
+
+
+class ProductPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
 class MenuAPIView(generics.ListAPIView):
@@ -13,6 +20,10 @@ class MenuAPIView(generics.ListAPIView):
 class ProductListAPIView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    pagination_class = ProductPagination
+    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
+    ordering_fields = ['id']
+    search_fields = ['name']
 
 
 class ProductByCategoryAPIView(generics.ListAPIView):
